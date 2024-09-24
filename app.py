@@ -1,45 +1,18 @@
 import streamlit as st
+from streamlit_webrtc import webrtc_streamer
 import cv2
-from makeup_app import MakeupApplication  # Your existing class
-import numpy as np
+import av
+from makeup_application import MakeupApplication  # Your MakeupApplication class
 
-# Initialize makeup application
-makeup_app = MakeupApplication()
+class VideoProcessor:
+    def __init__(self):
+        self.makeup_app = MakeupApplication()
 
-def main():
-    st.title("Real-Time Virtual Makeup Application")
+    def recv(self, frame):
+        img = frame.to_ndarray(format="bgr24")
+        img = self.makeup_app.process_frame(img)
+        return av.VideoFrame.from_ndarray(img, format="bgr24")
 
-    # Start video capture from the webcam
-    cap = cv2.VideoCapture(0)
+st.title("Virtual Makeup Application with Webcam")
 
-    stframe = st.empty()  # To display video frames
-
-    if not cap.isOpened():
-        st.error("Unable to access the camera.")
-    else:
-        st.success("Accessing the camera...")
-
-    while cap.isOpened():
-        ret, frame = cap.read()
-
-        if not ret:
-            st.error("Failed to capture frame from camera.")
-            break
-
-        # Apply virtual makeup to the frame
-        frame = makeup_app.process_frame(frame)
-
-        # Convert frame to RGB (OpenCV uses BGR)
-        frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-
-        # Display the frame
-        stframe.image(frame, channels='RGB')
-
-        # Break the loop if 'q' is pressed
-        if cv2.waitKey(1) & 0xFF == ord('q'):
-            break
-
-    cap.release()
-
-if __name__ == "__main__":
-    main()
+webrtc_streamer(key="example", video_processor_factory=VideoProcessor)
