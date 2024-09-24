@@ -1,41 +1,41 @@
 import streamlit as st
-from streamlit_webrtc import webrtc_streamer, VideoProcessorBase
 import cv2
-import av
-from makeup_app import MakeupApplication  # Assuming you have a class for processing
+import numpy as np
 
-class VirtualMakeupProcessor(VideoProcessorBase):
-    def recv(self, frame):
-        try:
-            img = frame.to_ndarray(format="bgr24")
-            # Apply makeup processing here
-            return av.VideoFrame.from_ndarray(img, format="bgr24")
-        except Exception as e:
-            st.error(f"Error in video processing: {e}")
-            return frame
+st.title("Real-Time Virtual Makeup")
 
+# Initialize OpenCV for video capture
+cap = cv2.VideoCapture(0)  # '0' is the default camera
 
-
-st.title("Virtual Makeup Application - Real-time Camera Access")
-
-# Start the webcam stream using WebRTC
-webrtc_ctx = webrtc_streamer(
-    key="makeup-app",
-    video_processor_factory=VirtualMakeupProcessor,
-    media_stream_constraints={
-        "video": {
-            "width": {"ideal": 640},  # Lower the resolution
-            "height": {"ideal": 480}
-        },
-        "audio": False
-    },
-    async_processing=True,
-)
-
-
-if webrtc_ctx.state.playing:
-    st.write("Camera is active.")
-    st.write("State: Playing")
+if not cap.isOpened():
+    st.error("Error: Could not open video stream.")
 else:
-    st.write(f"Current state: {webrtc_ctx.state}")
+    st.write("Camera opened successfully!")
 
+# Frame window
+frame_placeholder = st.empty()
+
+try:
+    while True:
+        # Capture frame-by-frame
+        ret, frame = cap.read()
+
+        if not ret:
+            st.error("Failed to grab frame from camera.")
+            break
+
+        # Optionally, apply your makeup effects here using OpenCV.
+        # For demonstration, we'll convert it to grayscale.
+        gray_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+
+        # Convert the frame to RGB for displaying in Streamlit
+        rgb_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+
+        # Display the frame in Streamlit
+        frame_placeholder.image(rgb_frame, channels="RGB")
+
+except Exception as e:
+    st.error(f"Error: {e}")
+
+# Release the camera resource
+cap.release()
