@@ -5,14 +5,16 @@ import av
 from makeup_app import MakeupApplication  # Assuming you have a class for processing
 
 class VirtualMakeupProcessor(VideoProcessorBase):
-    def __init__(self):
-        self.makeup_app = MakeupApplication()  # Your custom virtual makeup class
-
     def recv(self, frame):
-        img = frame.to_ndarray(format="bgr24")
-        # Process the frame with your virtual makeup function
-        img = self.makeup_app.process_frame(img)
-        return av.VideoFrame.from_ndarray(img, format="bgr24")
+        try:
+            img = frame.to_ndarray(format="bgr24")
+            # Apply makeup processing here
+            return av.VideoFrame.from_ndarray(img, format="bgr24")
+        except Exception as e:
+            st.error(f"Error in video processing: {e}")
+            return frame
+
+
 
 st.title("Virtual Makeup Application - Real-time Camera Access")
 
@@ -20,7 +22,13 @@ st.title("Virtual Makeup Application - Real-time Camera Access")
 webrtc_ctx = webrtc_streamer(
     key="makeup-app",
     video_processor_factory=VirtualMakeupProcessor,
-    media_stream_constraints={"video": {"width": {"ideal": 1280}, "height": {"ideal": 720}}, "audio": False},
+    media_stream_constraints={
+        "video": {
+            "width": {"ideal": 640},  # Lower the resolution
+            "height": {"ideal": 480}
+        },
+        "audio": False
+    },
     async_processing=True,
 )
 
