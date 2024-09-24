@@ -26,4 +26,8 @@ webrtc_ctx = webrtc_streamer(
 
 
 if webrtc_ctx.state.playing:
-    st.write("Camera is active!")
+    st.write("Camera is active.")
+    st.write("State: Playing")
+else:
+    st.write(f"Current state: {webrtc_ctx.state}")
+
