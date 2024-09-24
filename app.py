@@ -2,7 +2,7 @@ import streamlit as st
 from streamlit_webrtc import webrtc_streamer, VideoProcessorBase
 import cv2
 import av
-from makeup_application import MakeupApplication  # Assuming you have a class for processing
+from makeup_app import MakeupApplication  # Assuming you have a class for processing
 
 class VirtualMakeupProcessor(VideoProcessorBase):
     def __init__(self):
