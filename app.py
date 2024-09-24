@@ -9,14 +9,23 @@ class VirtualMakeupProcessor(VideoProcessorBase):
         pass
 
     def recv(self, frame):
-        # Convert the frame to a numpy array for OpenCV
-        img = frame.to_ndarray(format="bgr24")
-        
-        # Example: Apply makeup processing here
-        # Assuming you have a method for processing the image
-        img = self.process_frame(img)  # Replace with your processing function
-        
-        return av.VideoFrame.from_ndarray(img, format="bgr24")
+        # Check if the frame is valid
+        if frame is None:
+            st.error("Received an empty frame.")
+            return None
+
+        try:
+            # Convert the frame to a numpy array for OpenCV
+            img = frame.to_ndarray(format="bgr24")
+            
+            # Example: Apply makeup processing here
+            img = self.process_frame(img)  # Replace with your processing function
+            
+            # Return the processed frame
+            return av.VideoFrame.from_ndarray(img, format="bgr24")
+        except Exception as e:
+            st.error(f"Error processing video: {e}")
+            return frame  # Return the original frame if processing fails
 
     def process_frame(self, img):
         # Implement your makeup application logic here
