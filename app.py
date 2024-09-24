@@ -20,9 +20,10 @@ st.title("Virtual Makeup Application - Real-time Camera Access")
 webrtc_ctx = webrtc_streamer(
     key="makeup-app",
     video_processor_factory=VirtualMakeupProcessor,
-    media_stream_constraints={"video": True, "audio": False},
+    media_stream_constraints={"video": {"width": {"ideal": 1280}, "height": {"ideal": 720}}, "audio": False},
     async_processing=True,
 )
+
 
 if webrtc_ctx.state.playing:
     st.write("Camera is active!")
